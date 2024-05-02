@@ -11,8 +11,11 @@ const documentSlice = createSlice({
      },
      addSingleDoc : (state, action) => {
         return { docs : [ ...state.docs, action.payload ] };
+     },
+     deleteDoc: (state, action) => {
+        return { docs : state.docs.filter(doc => doc._id !== action.payload) };
      }
 }});
 
-export const { addDocs, addSingleDoc } = documentSlice.actions;
+export const { addDocs, addSingleDoc, deleteDoc } = documentSlice.actions;
 export default documentSlice.reducer;

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Button from "../utility/Button";
 import "./Signup.scss";
-import { useMutation, useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
+import { useMutation } from "react-query";
+import { Link, useNavigate } from "react-router-dom";
 
 const createPost = async (postData) => {
   const URL = process.env.REACT_APP_SERVER_BASE_URL + "/user/signup";
@@ -15,7 +15,6 @@ const createPost = async (postData) => {
   });
 
   if (!response.ok) {
-    console.log(response);
     throw new Error("Network response was not ok");
   }
 
@@ -24,7 +23,6 @@ const createPost = async (postData) => {
 
 const Signup = () => {
   const navigate = useNavigate();
-
   const [userData, setUserData] = useState({
     name: "",
     username: "",
@@ -140,10 +138,10 @@ const Signup = () => {
 
   return (
     <div className="signup-page-main-container">
-      <div className="signup-left-section"></div>
+      
       <div className="signup-container">
         <div className="signup-heading">
-          <h1>Welcome to Google docs.</h1>
+          <h1>Welcome to Syncscript.</h1>
           <h3>Please sign up to continue</h3>
         </div>
         <form onSubmit={formSubmitHandler}>
@@ -202,6 +200,10 @@ const Signup = () => {
             {mutation.isLoading ? "Loading" : "Sign up"}
           </Button>
         </form>
+        <div className="signup-link">
+          <p>Already have account?</p>
+          <Link className="link" to="/login">Login</Link>
+        </div>
       </div>
     </div>
   );

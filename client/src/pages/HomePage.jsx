@@ -2,21 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { getUserById } from "../Apis/getUserData.api";
 import { addUser } from "../store/user.slice";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import "./HomePage.scss";
-import { Avatar, Button } from "@mui/material";
+import { Avatar, IconButton } from "@mui/material";
 import Modal from "../utility/Modal";
 import { createDocument as api } from "../Apis/createDocument.api";
 import { getDocumentOfUser } from "../Apis/getDocumentOfUser.api";
-import { addDocs, addSingleDoc } from "../store/document.slice";
-import { useGetApiCaller } from "../Apis/api";
+import { addDocs, addSingleDoc, deleteDoc } from "../store/document.slice";
+import { useGetApiCaller, useDeleteApiCaller } from "../Apis/api";
 import CloseIcon from "@mui/icons-material/Close";
 import Cookies from "js-cookie";
 import { changeIsTemplate } from "../store/template.slice";
+import DeleteIcon from '@mui/icons-material/Delete';
+import Button from '@mui/material/Button';
 
 const HomePage = () => {
   const user = useSelector((state) => state.user);
@@ -42,10 +43,6 @@ const HomePage = () => {
     if (getUserData.isError === null && getUserData.isLoading === null) return;
     if (getUserData.isLoading) return;
     if (getUserData.isError) {
-      console.log(
-        "Error in fetching data from the server",
-        getUserData.isError
-      );
       navigate("/login");
       return;
     }
@@ -62,8 +59,6 @@ const HomePage = () => {
     () => api({ ...createDocument.document, createdBy: user._id }),
     {
       onSuccess: (data) => {
-        console.log("document created successfully", data);
-        // console.log("document created successfully");
         dispatch(addSingleDoc(data));
         setCreateDocument({
           document: { title: "", createdBy: user._id },
@@ -73,7 +68,6 @@ const HomePage = () => {
         navigate(`/document/${data._id}`);
       },
       onError: (error) => {
-        console.log(error, "error occured");
         alert("Error occured while creating document");
         setCreateDocument({
           document: { title: "", createdBy: user._id },
@@ -94,7 +88,6 @@ const HomePage = () => {
   useEffect(() => {
     if (getAllDocsOfUser.isLoading) return;
     if (getAllDocsOfUser.isError) {
-      console.log("error occured while fetching all docs of user");
       return;
     }
     if (getAllDocsOfUser.data) {
@@ -108,14 +101,11 @@ const HomePage = () => {
 
   useEffect(() => {
     if (createDocument.isClicked) {
-      console.log("check this------------------", createDocument);
-      console.log("user id", user._id);
       createDocumentQuery.mutate();
     }
   }, [createDocument.isClicked]);
 
   useEffect(() => {
-    // const token = localStorage.getItem("authToken");
     const token = Cookies.get("authToken");
     getUserData.fetchApi(
       token && !user.id ? { headers: { Authorization: token } } : null
@@ -124,7 +114,7 @@ const HomePage = () => {
 
   return (
     <div className="homepage-main-container">
-      <HomePageNavbar profilePicture={user.profilePicture} />
+      <HomePageNavbar profilePicture={user.profilePicture} email={user.email} />
       <CreateDocument
         setIsModelOpen={setIsModelOpen}
         isModalOpen={isModalOpen}
@@ -151,10 +141,12 @@ const HomePage = () => {
   );
 };
 
-const HomePageNavbar = ({ profilePicture }) => {
+const HomePageNavbar = ({ profilePicture, email }) => {
   const docs = useSelector((state) => state.document.docs);
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const navigate = useNavigate();
   const searchHandler = (e) => {
     setSearchValue(e.target.value);
   };
@@ -170,7 +162,6 @@ const HomePageNavbar = ({ profilePicture }) => {
     setFilteredData(filter);
   }, [searchValue]);
 
-  console.log(filteredData);
 
   return (
     <div className="homepage-navbar-container">
@@ -180,23 +171,52 @@ const HomePageNavbar = ({ profilePicture }) => {
           fontSize="large"
           color="primary"
         />
-        <h1>Docs</h1>
+        <h1>SyncScript</h1>
       </div>
       <div className="homepage-searchbar-container">
         <SearchIcon fontSize="medium" sx={{ color: "gray" }} />
         <input onChange={searchHandler} type="text" placeholder="Search" />
         <ShowSearchResults filteredData={filteredData} />
       </div>
-      <Avatar
-        sx={{
-          height: "50px",
-          width: "50px",
-          cursor: "pointer",
-          marginRight: "1rem",
-        }}
-        src={profilePicture}
-        alt="user"
-      />
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <Avatar
+            sx={{ marginRight: "1rem", cursor: "pointer" }}
+            src={profilePicture}
+          />
+          {isHovered && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: "1rem",
+                display: "flex",
+                flexDirection: "column",
+                border: "1px solid #ccc",
+                backgroundColor: "#fff",
+                padding: "1rem",
+                boxShadow:
+                  "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px",
+              }}
+            >
+              <p>{email}</p>
+              <Button
+                onClick={() => {
+                  Cookies.remove("authToken");
+                  navigate("/login");
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                Logout
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
@@ -214,7 +234,6 @@ const ShowSearchResults = ({ filteredData }) => {
 };
 
 const CreateDocument = ({ setIsModelOpen, isModalOpen }) => {
-  
   return (
     <div className="create-document-main-container">
       <div className="create-document">
@@ -234,19 +253,24 @@ const NewDocumentTemplate = ({ setIsModelOpen, isModalOpen }) => {
   const dispatch = useDispatch();
   return (
     <React.Fragment>
-    <div
-      className="new-document-template"
-      onClick={() => {
-        dispatch(changeIsTemplate(false));
-        setIsModelOpen(!isModalOpen);
-      }}
-    >
-      <AddIcon sx={{ fontSize: "8rem" }} />
-    </div>
-    <div className="new-document-template" onClick={() => {
-      dispatch(changeIsTemplate(true))
-      setIsModelOpen(!isModalOpen)
-    }}>Resume</div>
+      <div
+        className="new-document-template"
+        onClick={() => {
+          dispatch(changeIsTemplate(false));
+          setIsModelOpen(!isModalOpen);
+        }}
+      >
+        <AddIcon sx={{ fontSize: "8rem" }} />
+      </div>
+      <div
+        className="new-document-template"
+        onClick={() => {
+          dispatch(changeIsTemplate(true));
+          setIsModelOpen(!isModalOpen);
+        }}
+      >
+        Resume
+      </div>
     </React.Fragment>
   );
 };
@@ -260,7 +284,6 @@ const CreateNewDocumentModal = ({
 
   const formSubmitHandler = (e) => {
     e.preventDefault();
-    console.log("clicked");
     setCreateDocument({
       document: { ...createDocument.document, title: title },
       isClicked: true,
@@ -285,14 +308,43 @@ const CreateNewDocumentModal = ({
   );
 };
 
-const DocumentOfUser = ({ title, userId }) => {
+const DocumentOfUser = ({ title, userId}) => {
   const dispatch = useDispatch();
+
+  const {isLoading, isError, data, fetchApi} = useDeleteApiCaller(process.env.REACT_APP_SERVER_BASE_URL + "/document/delete/" + userId);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (isError) {
+      alert("Error occured while deleting the document");
+      return;
+    }
+    if (data) {
+      dispatch(deleteDoc(userId));
+    }
+  }, [data, isError, isLoading])
+
+  const handleDeleteClick = (event) => {
+    event.preventDefault()
+    event.stopPropagation(); // Prevent the click event from propagating to the parent Link component
+    fetchApi(); 
+  };
+
   return (
     <Link className="link" to={`/document/${userId}`}>
-      <div style={{ width: "100%" }} className="individual-document-of-user" onClick={() => {
-        dispatch(changeIsTemplate(false));
-      }}>
+      <div
+        style={{ width: "100%", display: "flex", justifyContent: "space-between"}}
+        className="individual-document-of-user"
+        onClick={() => {
+          dispatch(changeIsTemplate(false));
+        }}
+      >
         <p className="document-name">{title}</p>
+        
+          <IconButton onClick={handleDeleteClick}>
+            <DeleteIcon style={{zIndex: "100"}} color="error" />
+          </IconButton>
+        
       </div>
     </Link>
   );
@@ -301,7 +353,7 @@ const DocumentOfUser = ({ title, userId }) => {
 const Footer = () => {
   return (
     <div className="footer-main-container">
-      Created and designed by <span> Rishika ❤️</span>
+     <span>SyncScript</span> Created and designed by <span> Rishika || Gopal || Narasimha</span>
     </div>
   );
 };

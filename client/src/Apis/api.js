@@ -102,3 +102,39 @@ export const usePutApiCaller = (URL) => {
 
     return {...state, updateData : updateData};
 }
+
+export const useDeleteApiCaller = (URL) => {
+
+    const [state, setState] = useState({
+        data : null,
+        isError : null,
+        isLoading : null,
+    })
+    
+    const fetchApi = async (headers) => {
+        try {
+            setState({
+                data : null,
+                isError : null,
+                isLoading : true
+            })
+            console.log(headers)
+            const response = await axios.delete(URL, (headers ? headers : null));
+            setState({
+                data : response.data,
+                isError : false,
+                isLoading : false
+            })
+        } catch (error) {
+            setState({
+                data : error.response,
+                isError : true,
+                isLoading : false
+            })
+            console.log("Error in fetching data from the server", error);
+        }
+    }
+
+    return {...state, fetchApi : fetchApi};
+
+}

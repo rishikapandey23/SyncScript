@@ -1,16 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Button from "../utility/Button";
 import "./Login.scss";
-import { isError, useMutation } from "react-query";
-import { checkUser } from "../Apis/login.api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addUserId } from "../store/user.slice";
 import { usePostApiCaller } from "../Apis/api";
-import { Button as Btn } from 'primereact/button';
 import Cookies from "js-cookie";
-
-const token = localStorage.getItem("authToken");
 
 const Login = () => {
   const [userLoginInfo, setUserLoginInfo] = useState({
@@ -27,32 +22,22 @@ const Login = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // const mutation = useMutation(checkUser, {
-  //   onSuccess: (data, variables, context) => {
-  //     console.log(data);
-  //     localStorage.setItem("authToken", data?.data?.authorization);
-  //     dispatch(addUserId(data?.data?._id));
-  //     navigate("/");
-  //   },
-  // });
-
-  const loginApi = usePostApiCaller(process.env.REACT_APP_SERVER_BASE_URL + "/user/login");
+  const loginApi = usePostApiCaller(
+    process.env.REACT_APP_SERVER_BASE_URL + "/user/login"
+  );
 
   useEffect(() => {
-    if(loginApi.isError === null && loginApi.isLoading === null) return;
-    if(loginApi.isLoading) return;
-    if(loginApi.isError) {
-      console.log("Error in fetching data from the server", loginApi.isError);
+    if (loginApi.isError === null && loginApi.isLoading === null) return;
+    if (loginApi.isLoading) return;
+    if (loginApi.isError) {
       return;
-    } 
-    if(loginApi.data !== null) {
+    }
+    if (loginApi.data !== null) {
       Cookies.set("authToken", loginApi.data?.authorization);
-      // localStorage.setItem("authToken", loginApi.data?.authorization);
       dispatch(addUserId(loginApi.data?._id));
       navigate("/");
     }
-  }, [loginApi])
+  }, [loginApi]);
 
   const handleChange = (e) => {
     setUserLoginInfo({
@@ -62,8 +47,6 @@ const Login = () => {
   };
 
   useEffect(() => {
-    console.log("this is user info", userLoginInfo);
-    console.log("this is error message", errorMessage);
     if (buttonClicked) {
       if (userLoginInfo.username !== "") {
         setErrorMessage((prev) => {
@@ -82,7 +65,6 @@ const Login = () => {
         });
       }
       if (userLoginInfo.username === "") {
-        console.log("inside username");
         setErrorMessage((prev) => {
           return {
             ...prev,
@@ -100,8 +82,6 @@ const Login = () => {
       }
     }
   }, [userLoginInfo, buttonClicked]);
-
-  console.log("this is error message outside", errorMessage);
 
   const formSubmitHandler = (e) => {
     e.preventDefault();
@@ -124,20 +104,14 @@ const Login = () => {
       return;
     }
 
-    // console.log(userLoginInfo);
-    // mutation.mutate(userLoginInfo);
-
     loginApi.postData(userLoginInfo);
   };
 
-  // console.log(mutation);
-
   return (
     <div className="login-page-main-container">
-      <div className="login-left-section"></div>
       <div className="login-container">
         <div className="login-heading">
-          <h1>Welcome to Google docs.</h1>
+          <h1>Welcome to Syncscript.</h1>
           <h3>Please sign in to continue</h3>
         </div>
         <form onSubmit={formSubmitHandler}>
@@ -163,9 +137,16 @@ const Login = () => {
           </div>
           <Button type="submit">LOG IN</Button>
         </form>
+        <div className="signup-link">
+          <p>Don't have account?</p>
+          <Link className="link" to="/signup">
+            Signup
+          </Link>
+        </div>
       </div>
     </div>
   );
 };
+
 
 export default Login;

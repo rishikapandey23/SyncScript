@@ -15,27 +15,25 @@ import CloseIcon from "@mui/icons-material/Close";
 import ShareIcon from "@mui/icons-material/Share";
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 const DocumentNavbar = ({
   title,
   profilePicture,
   triggerSaveApi,
   documentId,
+  email,
 }) => {
   const [documentTitle, setDocumentTitle] = useState(title);
   const [isModalOpen, setIsModelOpen] = useState(false);
+  const navigate = useNavigate();
+  const [isHovered, setIsHovered] = useState(false);
+
+  console.log(isHovered)
 
   useEffect(() => {
     setDocumentTitle(title);
   }, [title]);
-
-  const buttonStyle = {
-    padding: "1rem 2rem",
-    border: "none",
-    color: "#fff",
-    borderRadius: "5px",
-    cursor: "pointer",
-  };
 
   return (
     <div
@@ -43,10 +41,9 @@ const DocumentNavbar = ({
         display: "flex",
         width: "100%",
         justifyContent: "space-between",
-        // padding : "1rem"
         padding: "1rem 0",
         position: "relative",
-        backgroundColor: "#fff",
+        backgroundColor: "#FAF9F6",
       }}
     >
       <input
@@ -70,13 +67,10 @@ const DocumentNavbar = ({
           gap: "1rem",
         }}
       >
-        {/*<button
-          style={{ ...buttonStyle, backgroundColor: "#435585" }}
+        <IconButton
+          aria-label="delete"
           onClick={() => setIsModelOpen(!isModalOpen)}
         >
-          Share
-      </button>*/}
-        <IconButton aria-label="delete" onClick={() => setIsModelOpen(!isModalOpen)}>
           <ShareIcon />
         </IconButton>
         <Modal isOpen={isModalOpen}>
@@ -85,56 +79,56 @@ const DocumentNavbar = ({
             closeModal={() => setIsModelOpen(false)}
           />
         </Modal>
-        {/*<button
-          style={{ ...buttonStyle, backgroundColor: "#435585" }}
-          onClick={() => triggerSaveApi(documentTitle)}
-        >
-          Save
-      </button>*/}
         <Button
           variant="contained"
           onClick={() => triggerSaveApi(documentTitle)}
         >
           Save
         </Button>
-        <Avatar
-          sx={{ marginRight: "1rem", cursor: "pointer" }}
-          src={profilePicture}
-        />
+        <div
+          style={{ position: "relative" }}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <Avatar
+            sx={{ marginRight: "1rem", cursor: "pointer" }}
+            src={profilePicture}
+          />
+          {isHovered && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: "-50%",
+                display: "flex",
+                flexDirection: "column",
+                border: "1px solid #ccc",
+                backgroundColor: "#fff",
+                padding: "1rem",
+                boxShadow:
+                  "rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px",
+                  zIndex: "1000"
+              }}
+            >
+              <p>{email}</p>
+              <Button
+                onClick={() => {
+                  Cookies.remove("authToken");
+                  navigate("/login");
+                }}
+                style={{ cursor: "pointer" }}
+              >
+                Logout
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
 const ShareModalElement = ({ documentId, closeModal }) => {
-  const temp = [
-    {
-      id: "1",
-      name: "Rohit",
-      profilePicture: "https://freerangestock.com/sample/120147/business",
-    },
-    {
-      id: "2",
-      name: "Rhifr10",
-      profilePicture: "https://freerangestock.com/sample/120147/business",
-    },
-    {
-      id: "3",
-      name: "rddfhit9",
-      profilePicture: "https://freerangestock.com/sample/120147/business",
-    },
-    {
-      id: "4",
-      name: "Rohit8",
-      profilePicture: "https://freerangestock.com/sample/120147/business",
-    },
-    {
-      id: "5",
-      name: "Rohit3",
-      profilePicture: "https://freerangestock.com/sample/120147/business",
-    },
-  ];
-
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
@@ -153,7 +147,7 @@ const ShareModalElement = ({ documentId, closeModal }) => {
       },
       auth: {
         token: Cookies.get("authToken"),
-      }
+      },
     });
     setSocket(socket);
     return () => {
@@ -162,20 +156,27 @@ const ShareModalElement = ({ documentId, closeModal }) => {
   }, []);
 
   useEffect(() => {
-    if(updateSharedUsers.isError === null && updateSharedUsers.isLoading === null) return;
-    if(updateSharedUsers.isLoading) return;
-    if(updateSharedUsers.isError) {
+    if (
+      updateSharedUsers.isError === null &&
+      updateSharedUsers.isLoading === null
+    )
+      return;
+    if (updateSharedUsers.isLoading) return;
+    if (updateSharedUsers.isError) {
       toast.error("Error occured while sharing document");
     }
-    if(updateSharedUsers.data !== null) {
+    if (updateSharedUsers.data !== null) {
       toast.success("Document shared successfully");
     }
-  }, [updateSharedUsers.data, updateSharedUsers.isError, updateSharedUsers.isLoading]);
+  }, [
+    updateSharedUsers.data,
+    updateSharedUsers.isError,
+    updateSharedUsers.isLoading,
+  ]);
 
   useEffect(() => {}, []);
 
   const buttonClickHandler = () => {
-    console.log("this is selected users", selectedUsers);
     const userIdsOfSelectedUsers = selectedUsers.map((item) => {
       return { _id: item._id, accessType: item.accessType };
     });
@@ -187,7 +188,6 @@ const ShareModalElement = ({ documentId, closeModal }) => {
       setFilteredData(null);
       return;
     }
-    console.log(socket.id);
     socket.emit("suggestions", {
       socketId: socket.id,
       username: searchValue,
@@ -197,16 +197,14 @@ const ShareModalElement = ({ documentId, closeModal }) => {
         return item.username.toLowerCase().includes(searchValue.toLowerCase());
       });
       setFilteredData(filter);
-      console.log("this is data", data);
     });
   }, [searchValue]);
-
 
   const removeElements = (id) => {
     setSelectedUsers((prev) => {
       return prev.filter((item) => item._id !== id);
     });
-  }
+  };
 
   return (
     <div
@@ -244,8 +242,13 @@ const ShareModalElement = ({ documentId, closeModal }) => {
             }}
           >
             {selectedUsers.map((item) => {
-              console.log("this is my item", selectedUsers)
-              return <IndividualNames name={item.username} _id={item._id} closeIconHandler={removeElements} />;
+              return (
+                <IndividualNames
+                  name={item.username}
+                  _id={item._id}
+                  closeIconHandler={removeElements}
+                />
+              );
             })}
           </div>
           <input
@@ -359,7 +362,6 @@ const IndividualPersonTile = ({
       }
     }
     changeUser(temp);
-    console.log("check this buddy", temp);
     setAccessType(e.target.value);
   };
   return (
@@ -434,12 +436,11 @@ const IndividualNames = ({ name, _id, closeIconHandler }) => {
       }}
     >
       <p>{name}</p>
-      <div
-        style={{
-          
-        }}
-      >
-        <CloseIcon sx={{color: "red"}} onClick={() => closeIconHandler(_id)} />
+      <div style={{}}>
+        <CloseIcon
+          sx={{ color: "red" }}
+          onClick={() => closeIconHandler(_id)}
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@
   margin: 50px 0;
 //   border: 1px solid #ccc;
 box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+background-color: white;
 }
 
 .quill {
@@ -22,8 +23,8 @@ box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
 .ql-toolbar.ql-snow {
     width: 100%;
-    // background-color: #f5f5f5;
-    border-radius: 1rem;
+    background-color: #EDF2FA;
+    border-radius: 0.5rem;
     border: none;
     margin-top: 0.5rem;
     box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;

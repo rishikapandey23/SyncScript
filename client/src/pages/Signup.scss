@@ -1,72 +1,92 @@
 .signup-page-main-container {
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: linear-gradient( 10.6deg, rgba(182, 100, 28, 0.707) 11.2%, rgba(25, 145, 209, 0.702) 91.1% );
 
-    .signup-left-section {
-        width: 70%;
-        background-color: #FFFBF5;
-      }
-
-  .signup-container {
-    display: flex;
-    flex-direction: column;
-    width: 20%;
-
-    // background-color: #ccc;
-    background-color: #F7EFE5;
-    padding: 0 5%;
-    height: 100vh;
-    justify-content: center;
-    .signup-heading {
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        gap: 1rem;
-        margin-bottom: 2rem;
-        h1 {
-          margin: 0;
-          font-size: 1.5rem;
-          font-weight: 800;
-        }
-  
-        h3 {
-          margin: 0;
-          font-size: 1.3rem;
-          font-weight: 500;
-        }
+  .signup-left-section {
+      width: 70%;
+      background-color: #FFFBF5;
     }
 
-    form {
+.signup-container {
+  display: flex;
+  flex-direction: column;
+  width: 20%;
+  box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 2px 6px 2px;
+  padding: 4rem 5%;
+  height: min-content;
+  justify-content: center;
+  .signup-heading {
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: start;
       gap: 1rem;
+      margin-bottom: 2rem;
+      h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+      }
 
-      .input-div {
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: start;
-        input {
-          padding: 20px 2.5%;
-          border: 1px solid #ccc;
-          border-radius: 5px;
-          width: 95%;
-          font-size: 1rem;
+      h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 500;
+      }
+  }
 
-          &:focus {
-            outline: none;
-            border: 2px solid #387adf;
-          }
+  form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    .input-div {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: start;
+      input {
+        padding: 20px 2.5%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 95%;
+        font-size: 1rem;
+
+        &:focus {
+          outline: none;
+          border: 2px solid #387adf;
         }
+      }
 
-        p {
-          margin: 0;
-          font-size: 0.8rem;
-          color: red;
-        }
+      p {
+        margin: 0;
+        font-size: 0.8rem;
+        color: red;
       }
     }
   }
+
+  .signup-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    // margin-top: 1rem;
+
+    .link {
+      text-decoration: none;
+      color: #074173;
+      font-size: 0.9rem;
+      font-weight: 500;
+
+      &:hover {
+        text-decoration: underline;
+        transform: scale(1.1);
+      }
+    }
+  }
+}
 }
