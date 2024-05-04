@@ -171,7 +171,7 @@ const HomePageNavbar = ({ profilePicture, email }) => {
           fontSize="large"
           color="primary"
         />
-        <h1>SyncScript</h1>
+        <h1>Syncscript</h1>
       </div>
       <div className="homepage-searchbar-container">
         <SearchIcon fontSize="medium" sx={{ color: "gray" }} />
@@ -353,7 +353,7 @@ const DocumentOfUser = ({ title, userId}) => {
 const Footer = () => {
   return (
     <div className="footer-main-container">
-     <span>SyncScript</span> Created and designed by <span> Rishika || Gopal || Narasimha</span>
+      <span>Syncscript</span>Created and designed by <span> Rishika || Gopal || Narasimha</span>
     </div>
   );
 };
