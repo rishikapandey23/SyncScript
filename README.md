@@ -21,7 +21,7 @@ of Add Video on the Editor page. There is an additional template of Resume, User
 - **Database:** MongoDB
 - **Real-Time Collaboration:** WebSocket (Socket.io)
 - **Authentication:** JWT (JSON Web Tokens)
-- **Document Rendering:** Draft.js
+
 
 ## Setup:
 1. Clone the repository.
